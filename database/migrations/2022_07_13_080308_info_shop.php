@@ -21,6 +21,14 @@ return new class extends Migration
             $table->string('plan_display_name',255);
             $table->timestamps();
         });
+        Schema::create('product', function (Blueprint $table) {
+            $table->bigInteger('id');
+            $table->string('title',255);
+            $table->text('content');
+            $table->enum('status',['active','is_active']);
+            $table->text('image')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -31,5 +39,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('info_shop');
+        Schema::dropIfExists('product');
     }
 };

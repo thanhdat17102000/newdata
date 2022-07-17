@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ShopifyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +19,14 @@ use App\Http\Controllers\ProductController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/create_webhook',[ProductController::class,'createWebhook']);
-Route::post('/create_product',[ProductController::class,'createProduct']);
+//create product
+Route::get('/create_webhook',[ShopifyController::class,'createWebhook']);
+Route::post('/create_product',[ShopifyController::class,'createProduct']);
+
+//delete product
+Route::get('/delete_webhook',[ShopifyController::class,'deleteWebhook']);
+Route::post('/delete_product',[ShopifyController::class,'deleteProduct']);
+
+//update product
+Route::any('/update_webhook',[ShopifyController::class,'updateWebhook']);
+Route::post('/update_product',[ShopifyController::class,'updateProduct']);

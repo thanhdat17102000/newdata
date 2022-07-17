@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ShopifyController extends Controller
 {
@@ -30,7 +31,10 @@ class ShopifyController extends Controller
         $url = route('url');
         //https://{shop}.myshopify.com/admin/oauth/authorize?client_id={api_key}&scope={scopes}&redirect_uri={redirect_uri}&state={nonce}&grant_options[]={access_mode}
         $redirect = "https://$shop/admin/oauth/authorize?client_id=$client_id&scope=$scope&redirect_uri=$url";
-        return redirect($redirect);
+        $this->createWebhook();
+        $this->deleteWebhook();
+        $this->updateWebhook();
+      
     }
 
     public function url(Request $request)
@@ -88,7 +92,90 @@ class ShopifyController extends Controller
 
         return json_decode($response->getBody()->getContents());
     }
+    public function createWebhook()
+    {
+        $client = new Client();
+        $url = 'https://datshop11111.myshopify.com/admin/api/2022-07/webhooks.json';
+        $response = $client->request('POST', $url, [    
+            'headers' => [
+                'X-Shopify-Access-Token' => 'shpua_b18be6dac319067e0878f95fff846d75',
+            ],
+            'form_params' => [
+                'webhook' => [
+                    'topic' => 'products/create',
+                    'format' => 'json',
+                    'address' => 'https://045c-115-73-18-36.ap.ngrok.io/api/create_product',
+                ],
+            ],
+        ]); 
+        
+        
+    }
+    public function createProduct(Request $request)
+    {
+        $data = [
+            'id' => $request->id,
+            'title' => $request->title,
+            'content' => $request->body_html,
+            'status' => $request->status,
+            'image' => null,
+        ];
+        DB::table('product')->insert($data);
+            
+    }
 
+    public function deleteWebhook()
+    {
+        $client = new Client();
+        $url = 'https://datshop11111.myshopify.com/admin/api/2022-07/webhooks.json';
+        $response = $client->request('POST', $url, [    
+            'headers' => [
+                'X-Shopify-Access-Token' => 'shpua_b18be6dac319067e0878f95fff846d75',
+            ],
+            'form_params' => [
+                'webhook' => [
+                    'topic' => 'products/delete',
+                    'format' => 'json',
+                    'address' => 'https://045c-115-73-18-36.ap.ngrok.io/api/delete_product',
+                ],
+            ],
+        ]);   
+    }
+    public function deleteProduct(Request $request)
+    {
+        DB::table('product')->where('id',$request->id)->delete();
+
+    }
     
+    public function updateWebhook()
+    {
+        $client = new Client();
+        $url = 'https://datshop11111.myshopify.com/admin/api/2022-07/webhooks.json';
+        $response = $client->request('PUT', $url, [    
+            'headers' => [
+                'X-Shopify-Access-Token' => 'shpua_b18be6dac319067e0878f95fff846d75',
+            ],
+            'form_params' => [
+                'webhook' => [
+                    'topic' => 'products/update',
+                    'format' => 'json',
+                    'address' => 'https://045c-115-73-18-36.ap.ngrok.io/api/update_product',
+                ],
+            ],
+        ]); 
+        
+        
+    }
+    public function updateProduct(Request $request)
+    {
+        $data = [
+            'title' => $request->title,
+            'content' => $request->body_html,
+            'status' => $request->status,
+            'image' => null,
+        ];
 
-}
+        DB::table('product')->where('id',$request->id)
+        ->update($data);                
+    }
+}   
