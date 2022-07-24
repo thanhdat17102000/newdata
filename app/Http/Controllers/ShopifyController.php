@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class ShopifyController extends Controller
 {
+    public function index(){
+        $dataShop = DB::table('info_shop')->get();
+        return view('index')->with('dataShop',$dataShop);
+    }
     public function shopify(Request $request)
     {
         $shop = $request->shop;
